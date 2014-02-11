@@ -3,12 +3,11 @@ package la.marsave.fullscreentest;
 /**
  * Created by sergiu on 07/02/14.
  */
+
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 
 /**
  * A {@link ViewPager} that allows pseudo-infinite paging with a wrap-around effect. Should be used with an {@link
@@ -19,7 +18,6 @@ public class InfiniteViewPager extends ViewPager {
     /**
      * The {@link android.support.v4.view.GestureDetectorCompat} that will host the captured gestures.
      */
-    private GestureDetector mDetector;
 
     public InfiniteViewPager(Context context) {
         super(context);
@@ -57,12 +55,5 @@ public class InfiniteViewPager extends ViewPager {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return super.onTouchEvent(ev) && mDetector.onTouchEvent(ev);
-    }
 
-    public void setGestureDetector(GestureDetector gestureDetector) {
-        this.mDetector = gestureDetector;
-    }
 }

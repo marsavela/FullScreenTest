@@ -13,11 +13,9 @@
      limitations under the License.
 -->
 
-<resources>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
-        <!-- Customize your theme here. -->
-    </style>
-
-</resources>
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:valueFrom="@dimen/slide_up_down_fraction"
+    android:valueTo="0"
+    android:propertyName="yFraction"
+    android:valueType="floatType"
+    android:duration="@integer/slide_up_down_duration"></objectAnimator>

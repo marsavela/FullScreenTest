@@ -3,9 +3,9 @@ package la.marsave.fullscreentest;
 /**
  * Created by sergiu on 07/02/14.
  */
+
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,9 +13,6 @@ import android.view.ViewGroup;
  * A PagerAdapter that wraps around another PagerAdapter to handle paging wrap-around.
  */
 public class InfinitePagerAdapter extends PagerAdapter {
-
-    private static final String TAG = "InfinitePagerAdapter";
-    private static final boolean DEBUG = true;
 
     private PagerAdapter adapter;
 
@@ -40,8 +37,6 @@ public class InfinitePagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         int virtualPosition = position % getRealCount();
-        debug("instantiateItem: real position: " + position);
-        debug("instantiateItem: virtual position: " + virtualPosition);
 
         // only expose virtual position to the inner adapter
         return adapter.instantiateItem(container, virtualPosition);
@@ -50,8 +45,6 @@ public class InfinitePagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         int virtualPosition = position % getRealCount();
-        debug("destroyItem: real position: " + position);
-        debug("destroyItem: virtual position: " + virtualPosition);
 
         // only expose virtual position to the inner adapter
         adapter.destroyItem(container, virtualPosition, object);
@@ -89,10 +82,4 @@ public class InfinitePagerAdapter extends PagerAdapter {
     /*
      * End delegation
      */
-
-    private void debug(String message) {
-        if (DEBUG) {
-            Log.d(TAG, message);
-        }
-    }
 }

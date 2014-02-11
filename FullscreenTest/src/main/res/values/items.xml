@@ -15,9 +15,6 @@
 
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
-        <!-- Customize your theme here. -->
-    </style>
+    <item name="slide_up_down_fraction" type="dimen" format="float">0.67</item>
 
 </resources>

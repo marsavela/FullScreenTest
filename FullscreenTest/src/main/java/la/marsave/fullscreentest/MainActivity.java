@@ -1,21 +1,48 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package la.marsave.fullscreentest;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements
+        OnTextFragmentAnimationEndListener, FragmentManager.OnBackStackChangedListener {
+
+    boolean mDidSlideOut = false;
+    boolean mIsAnimating = false;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -31,6 +58,8 @@ public class MainActivity extends Activity {
      * The {@link ViewPager} that will host the section contents.
      */
     private InfiniteViewPager mInfiniteViewPager;
+    private TextFragment mTextFragment;
+    private View mDarkHoverView;
 
     /**
      * The {@link int} that will host displayed colors.
@@ -41,8 +70,7 @@ public class MainActivity extends Activity {
             Color.BLUE,     Color.GREEN,    Color.RED
     };
 
-    // TAGS
-    private static final String TAG = "ImmersiveModeFragment";
+    private GestureDetector mScrollDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,22 +80,210 @@ public class MainActivity extends Activity {
         getWindow().setAttributes(layout);
         setContentView(R.layout.activity_main);
 
+        mDarkHoverView = findViewById(R.id.dark_hover_view);
+        mDarkHoverView.setAlpha(0);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
+        mScrollDetector = new GestureDetector(this, new ViewPagerGestureDetector());
 
         // Set up the ViewPager with the sections adapter.
         mInfiniteViewPager = (InfiniteViewPager) findViewById(R.id.pager);
+        mTextFragment = new TextFragment();
+        getFragmentManager().addOnBackStackChangedListener(this);
         mInfiniteViewPager.setAdapter(new InfinitePagerAdapter(mSectionsPagerAdapter));
         mInfiniteViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-        mInfiniteViewPager.setGestureDetector(new GestureDetector(this, new GestureListener()));
+        mInfiniteViewPager.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return mScrollDetector.onTouchEvent(event);
+            }
+        });
+        mTextFragment.setClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchFragments();
+            }
+        });
+        mTextFragment.setOnTextFragmentAnimationEnd(this);
+        mDarkHoverView.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (v.getAlpha() != 0)
+                    switchFragments();
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        if (!mDidSlideOut) {
+            slideForward();
+        }
     }
 
     @Override
     protected void onResume() {
         hideBars();
         super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        if (mDidSlideOut) {
+            mDidSlideOut = false;
+            getFragmentManager().popBackStack();
+        }
+        super.onPause();
+    }
+
+    /**
+     * This method is used to toggle between the two fragment states by
+     * calling the appropriate animations between them. The entry and exit
+     * animations of the text fragment are specified in R.animator resource
+     * files. The entry and exit animations of the image fragment are
+     * specified in the slideBack and slideForward methods below. The reason
+     * for separating the animation logic in this way is because the translucent
+     * dark hover view must fade in at the same time as the image fragment
+     * animates into the background, which would be difficult to time
+     * properly given that the setCustomAnimations method can only modify the
+     * two fragments in the transaction.
+     */
+    private void switchFragments() {
+        if (mIsAnimating) {
+            return;
+        }
+        mIsAnimating = true;
+        if (mDidSlideOut) {
+            mDidSlideOut = false;
+            getFragmentManager().popBackStack();
+        } else {
+            mDidSlideOut = true;
+
+            Animator.AnimatorListener listener = new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator arg0) {
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.setCustomAnimations(R.animator.slide_fragment_in, 0, 0,
+                            R.animator.slide_fragment_out);
+                    transaction.add(R.id.move_to_back_container, mTextFragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            };
+            slideBack(listener);
+        }
+    }
+
+    /**
+     * This method animates the image fragment into the background by both
+     * scaling and rotating the fragment's view, as well as adding a
+     * translucent dark hover view to inform the user that it is inactive.
+     */
+    public void slideBack(Animator.AnimatorListener listener) {
+        View movingFragmentView = mInfiniteViewPager;
+
+        PropertyValuesHolder rotateX = PropertyValuesHolder.ofFloat("rotationX", 40f);
+        PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 0.8f);
+        PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 0.8f);
+        ObjectAnimator movingFragmentAnimator = ObjectAnimator.
+                ofPropertyValuesHolder(movingFragmentView, rotateX, scaleX, scaleY);
+
+        ObjectAnimator darkHoverViewAnimator = ObjectAnimator.
+                ofFloat(mDarkHoverView, "alpha", 0.0f, 0.5f);
+
+        ObjectAnimator movingFragmentRotator = ObjectAnimator.
+                ofFloat(movingFragmentView, "rotationX", 0);
+        movingFragmentRotator.setStartDelay(getResources().
+                getInteger(R.integer.half_slide_up_down_duration));
+
+        AnimatorSet s = new AnimatorSet();
+        s.playTogether(movingFragmentAnimator, darkHoverViewAnimator, movingFragmentRotator);
+        s.addListener(listener);
+        s.start();
+    }
+
+    /**
+     * This method animates the image fragment into the foreground by both
+     * scaling and rotating the fragment's view, while also removing the
+     * previously added translucent dark hover view. Upon the completion of
+     * this animation, the image fragment regains focus since this method is
+     * called from the onBackStackChanged method.
+     */
+    public void slideForward() {
+        View movingFragmentView = mInfiniteViewPager;
+
+        PropertyValuesHolder rotateX = PropertyValuesHolder.ofFloat("rotationX", 40f);
+        PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.0f);
+        PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.0f);
+        ObjectAnimator movingFragmentAnimator = ObjectAnimator.
+                ofPropertyValuesHolder(movingFragmentView, rotateX, scaleX, scaleY);
+
+        ObjectAnimator darkHoverViewAnimator = ObjectAnimator.
+                ofFloat(mDarkHoverView, "alpha", 0.5f, 0.0f);
+
+        ObjectAnimator movingFragmentRotator = ObjectAnimator.
+                ofFloat(movingFragmentView, "rotationX", 0);
+        movingFragmentRotator.setStartDelay(
+                getResources().getInteger(R.integer.half_slide_up_down_duration));
+
+        AnimatorSet s = new AnimatorSet();
+        s.playTogether(movingFragmentAnimator, movingFragmentRotator, darkHoverViewAnimator);
+        s.setStartDelay(getResources().getInteger(R.integer.slide_up_down_duration));
+        s.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mIsAnimating = false;
+            }
+        });
+        s.start();
+    }
+
+    public void onAnimationEnd() {
+        mIsAnimating = false;
+    }
+
+    private class ViewPagerGestureDetector extends SimpleOnGestureListener {
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return super.onScroll(e1, e2, distanceX, distanceY);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            switchFragments();
+            return super.onSingleTapConfirmed(e);
+        }
+    }
+
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            return PlaceholderFragment.newInstance(colours[position]);
+        }
+
+        @Override
+        public int getCount() {
+            // Show 9 total pages.
+            return colours.length;
+        }
     }
 
     /**
@@ -82,7 +298,6 @@ public class MainActivity extends Activity {
         int newUiOptions = 0;
         // END_INCLUDE (get_current_ui_flags)
         // BEGIN_INCLUDE (toggle_ui_flags)
-        Log.i(TAG, "Turning immersive mode mode on.");
 
         // Navigation bar hiding:  Backwards compatible to ICS.
         if (Build.VERSION.SDK_INT >= 14) {
@@ -108,30 +323,6 @@ public class MainActivity extends Activity {
 
         this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
         //END_INCLUDE (set_ui_flags)
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(colours[position]);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 9 total pages.
-            return colours.length;
-        }
     }
 
     /**
@@ -167,5 +358,4 @@ public class MainActivity extends Activity {
             return rootView;
         }
     }
-
 }
