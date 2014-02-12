@@ -13,7 +13,8 @@
      limitations under the License.
 -->
 
-<la.marsave.fullscreentest.FractionalLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<la.marsave.fullscreentest.FractionalLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="@dimen/slide_fragment_horizontal_margin"
@@ -24,7 +25,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/bridge"
+        android:text="@string/app_name"
         android:textColor="#000000"
         android:textStyle="bold"
         android:textSize="26sp"
@@ -43,59 +44,12 @@
         android:layout_marginRight="@dimen/text_horizontal_margin" />
 
     <TextView
+        android:id="@+id/credits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/length"
+        android:text="@string/app_credits"
         android:textColor="#000000"
-        android:layout_marginLeft="@dimen/text_horizontal_margin"
-        android:layout_marginRight="@dimen/text_horizontal_margin" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/span"
-        android:textColor="#000000"
-        android:layout_marginLeft="@dimen/text_horizontal_margin"
-        android:layout_marginRight="@dimen/text_horizontal_margin" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/construction"
-        android:textColor="#000000"
-        android:layout_marginLeft="@dimen/text_horizontal_margin"
-        android:layout_marginRight="@dimen/text_horizontal_margin" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/height"
-        android:textColor="#000000"
-        android:layout_marginLeft="@dimen/text_horizontal_margin"
-        android:layout_marginRight="@dimen/text_horizontal_margin" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/elevation"
-        android:textColor="#000000"
-        android:layout_marginLeft="@dimen/text_horizontal_margin"
-        android:layout_marginRight="@dimen/text_horizontal_margin" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/address"
-        android:textColor="#000000"
-        android:layout_marginLeft="@dimen/text_horizontal_margin"
-        android:layout_marginRight="@dimen/text_horizontal_margin" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/photo_credits"
-        android:textColor="#000000"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:layout_marginTop="@dimen/text_vertical_margin"
         android:layout_marginLeft="@dimen/text_horizontal_margin"
         android:layout_marginRight="@dimen/text_horizontal_margin" />

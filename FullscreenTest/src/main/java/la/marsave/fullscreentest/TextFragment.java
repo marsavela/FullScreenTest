@@ -25,24 +25,22 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class TextFragment extends Fragment {
 
-    View.OnClickListener clickListener;
     OnTextFragmentAnimationEndListener mListener;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.text_fragment, container, false);
-        view.setOnClickListener(clickListener);
+        TextView webLink = (TextView) view.findViewById(R.id.credits);
+        webLink.setMovementMethod(LinkMovementMethod.getInstance());
         return view;
-    }
-
-    public void setClickListener(View.OnClickListener clickListener) {
-        this.clickListener = clickListener;
     }
 
     @Override

@@ -22,7 +22,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
@@ -32,10 +31,8 @@ import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity implements
@@ -80,8 +77,7 @@ public class MainActivity extends Activity implements
         getWindow().setAttributes(layout);
         setContentView(R.layout.activity_main);
 
-        mDarkHoverView = findViewById(R.id.dark_hover_view);
-        mDarkHoverView.setAlpha(0);
+        getFragmentManager().addOnBackStackChangedListener(this);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -91,33 +87,17 @@ public class MainActivity extends Activity implements
 
         // Set up the ViewPager with the sections adapter.
         mInfiniteViewPager = (InfiniteViewPager) findViewById(R.id.pager);
-        mTextFragment = new TextFragment();
-        getFragmentManager().addOnBackStackChangedListener(this);
         mInfiniteViewPager.setAdapter(new InfinitePagerAdapter(mSectionsPagerAdapter));
         mInfiniteViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-        mInfiniteViewPager.setOnTouchListener(new View.OnTouchListener() {
+        mInfiniteViewPager.setOnTouchListener(mTouchViewPagerListener);
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return mScrollDetector.onTouchEvent(event);
-            }
-        });
-        mTextFragment.setClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchFragments();
-            }
-        });
+        // Set up the DarkHover that will be seen to cover the adapter once slided in.
+        mDarkHoverView = findViewById(R.id.dark_hover_view);
+        mDarkHoverView.setAlpha(0);
+        mDarkHoverView.setOnTouchListener(mTouchDarkHoverListener);
+
+        mTextFragment = new TextFragment();
         mTextFragment.setOnTextFragmentAnimationEnd(this);
-        mDarkHoverView.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (v.getAlpha() != 0)
-                    switchFragments();
-                return false;
-            }
-        });
     }
 
     @Override
@@ -135,11 +115,44 @@ public class MainActivity extends Activity implements
 
     @Override
     protected void onPause() {
+        //TODO Proper screen rotation handle.
         if (mDidSlideOut) {
             mDidSlideOut = false;
             getFragmentManager().popBackStack();
         }
         super.onPause();
+    }
+
+    View.OnTouchListener mTouchDarkHoverListener = new View.OnTouchListener() {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (v.getAlpha() != 0)
+                switchFragments();
+            return true;
+        }
+    };
+
+    View.OnTouchListener mTouchViewPagerListener = new View.OnTouchListener() {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            return mScrollDetector.onTouchEvent(event);
+        }
+    };
+
+    private class ViewPagerGestureDetector extends SimpleOnGestureListener {
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return super.onScroll(e1, e2, distanceX, distanceY);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            switchFragments();
+            return super.onSingleTapConfirmed(e);
+        }
     }
 
     /**
@@ -248,44 +261,6 @@ public class MainActivity extends Activity implements
         mIsAnimating = false;
     }
 
-    private class ViewPagerGestureDetector extends SimpleOnGestureListener {
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return super.onScroll(e1, e2, distanceX, distanceY);
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            switchFragments();
-            return super.onSingleTapConfirmed(e);
-        }
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(colours[position]);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 9 total pages.
-            return colours.length;
-        }
-    }
-
     /**
      * Detects and toggles immersive mode (also known as "hidey bar" mode).
      */
@@ -323,39 +298,5 @@ public class MainActivity extends Activity implements
 
         this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
         //END_INCLUDE (set_ui_flags)
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_COLOR_NUMBER = "color_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int colorNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_COLOR_NUMBER, colorNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            rootView.setBackgroundColor(getArguments().getInt(ARG_COLOR_NUMBER));
-            return rootView;
-        }
     }
 }

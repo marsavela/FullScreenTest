@@ -61,6 +61,6 @@ public class FractionalLinearLayout extends LinearLayout {
 
     public void setYFraction(float yFraction) {
         mYFraction = yFraction;
-        setY((mScreenHeight > 0) ? (mScreenHeight - yFraction * mScreenHeight) : 0);
+        setY((mScreenHeight > 0) ? (mScreenHeight - yFraction * mScreenHeight * 0.7F) : 0);
     }
 }

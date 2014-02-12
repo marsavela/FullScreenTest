@@ -16,14 +16,7 @@
 <resources>
 
     <string name="app_name">Fullscreen Test</string>
-    <string name="photo_credits"><b>Golden Gate Sunset</b> by <b>Romain Guy</b></string>
-    <string name="address"><b>Address:</b> Golden Gate Bridge, San Francisco, CA 94129</string>
-    <string name="elevation"><b>Elevation:</b>  220\' (67 m)</string>
-    <string name="height"><b>Height:</b>  746\' (227 m)</string>
-    <string name="construction"><b>Construction started:</b>  1933</string>
-    <string name="span"><b>Longest span:</b>  4,200\' (1,280 m)</string>
-    <string name="length"><b>Total length:</b>  8,980\' (2,737 m)</string>
-    <string name="summary">"The Golden Gate Bridge is a suspension bridge spanning the Golden Gate, the opening of the San Francisco Bay into the Pacific Ocean."</string>
-    <string name="bridge">Golden Gate Bridge</string>
+    <string name="summary">Application that helps you to check the screen and find dead or stuck pixels.</string>
+    <string name="app_credits"><b>Fullscreen Test</b> by <a href="http://marsave.la"><b>Sergiu Daniel Marsavela</b></a></string>
 
 </resources>
