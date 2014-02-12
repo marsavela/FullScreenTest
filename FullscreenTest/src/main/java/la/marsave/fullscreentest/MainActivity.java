@@ -127,9 +127,11 @@ public class MainActivity extends Activity implements
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (v.getAlpha() != 0)
+            if (v.getAlpha() > 0) {
                 switchFragments();
-            return true;
+                return true;
+            }
+            return false;
         }
     };
 
