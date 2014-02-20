@@ -24,11 +24,11 @@ import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.graphics.Color;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -52,22 +52,18 @@ public class MainActivity extends Activity implements
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
-     * The {@link ViewPager} that will host the section contents.
+     * The different fragments that will host the section contents.
      */
     private InfiniteViewPager mInfiniteViewPager;
     private TextFragment mTextFragment;
+    private HelpFragment mHelpFragment;
     private View mDarkHoverView;
 
-    /**
-     * The {@link int} that will host displayed colors.
-     */
-    private static final int[] colours = new int[] {
-            Color.WHITE,    Color.GRAY,     Color.BLACK,
-            Color.YELLOW,   Color.MAGENTA,  Color.CYAN,
-            Color.BLUE,     Color.GREEN,    Color.RED
-    };
-
     private GestureDetector mScrollDetector;
+
+    //TAG
+    private static final String PREFERENCES = "secret";
+    private static final String HELPED = "helped";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,11 +94,22 @@ public class MainActivity extends Activity implements
 
         mTextFragment = new TextFragment();
         mTextFragment.setOnTextFragmentAnimationEnd(this);
+
+        if (!getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(HELPED, false)) {
+            //if(true) {
+            mDarkHoverView.setAlpha(0.7F);
+            mHelpFragment = new HelpFragment();
+            mHelpFragment.setClickListener(mClickHelper);
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.add(R.id.move_to_back_container, mHelpFragment, HELPED);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
     }
 
     @Override
     public void onBackStackChanged() {
-        if (!mDidSlideOut) {
+        if (!mDidSlideOut && getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(HELPED, false)) {
             slideForward();
         }
     }
@@ -140,6 +147,21 @@ public class MainActivity extends Activity implements
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             return mScrollDetector.onTouchEvent(event);
+        }
+    };
+
+    View.OnClickListener mClickHelper = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            SharedPreferences.Editor editor = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit();
+            editor.putBoolean(HELPED, true);
+            editor.commit();
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.remove(mHelpFragment);
+            transaction.commit();
+
+            mDarkHoverView.setAlpha(0);
         }
     };
 
@@ -203,7 +225,7 @@ public class MainActivity extends Activity implements
     public void slideBack(Animator.AnimatorListener listener) {
         View movingFragmentView = mInfiniteViewPager;
 
-        PropertyValuesHolder rotateX = PropertyValuesHolder.ofFloat("rotationX", 40f);
+        PropertyValuesHolder rotateX = PropertyValuesHolder.ofFloat("rotationY", 40f);
         PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX", 0.8f);
         PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY", 0.8f);
         ObjectAnimator movingFragmentAnimator = ObjectAnimator.
@@ -213,7 +235,7 @@ public class MainActivity extends Activity implements
                 ofFloat(mDarkHoverView, "alpha", 0.0f, 0.5f);
 
         ObjectAnimator movingFragmentRotator = ObjectAnimator.
-                ofFloat(movingFragmentView, "rotationX", 0);
+                ofFloat(movingFragmentView, "rotationY", 0);
         movingFragmentRotator.setStartDelay(getResources().
                 getInteger(R.integer.half_slide_up_down_duration));
 

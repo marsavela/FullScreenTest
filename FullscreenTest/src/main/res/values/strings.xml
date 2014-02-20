@@ -18,5 +18,9 @@
     <string name="app_name">Fullscreen Test</string>
     <string name="summary">Application that helps you to check the screen and find dead or stuck pixels.</string>
     <string name="app_credits"><b>Fullscreen Test</b> by <a href="http://marsave.la"><b>Sergiu Daniel Marsavela</b></a></string>
+    <string name="touch_indicator">Touch Indicator</string>
+    <string name="swipe_indicator">Swipe Indicator</string>
+    <string name="swipe_indicator_text">Simply swipe left or right</string>
+    <string name="touch_indicator_text">Tap the screen for more</string>
 
 </resources>
