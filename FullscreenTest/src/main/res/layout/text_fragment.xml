@@ -43,13 +43,18 @@
         android:layout_marginLeft="@dimen/text_horizontal_margin"
         android:layout_marginRight="@dimen/text_horizontal_margin" />
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
     <TextView
         android:id="@+id/credits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_credits"
         android:textColor="#000000"
-        android:textSize="12sp"
+        android:textSize="16sp"
         android:layout_marginTop="@dimen/text_vertical_margin"
         android:layout_marginLeft="@dimen/text_horizontal_margin"
         android:layout_marginRight="@dimen/text_horizontal_margin" />

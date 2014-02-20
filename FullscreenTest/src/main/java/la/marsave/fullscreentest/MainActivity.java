@@ -95,21 +95,26 @@ public class MainActivity extends Activity implements
         mTextFragment = new TextFragment();
         mTextFragment.setOnTextFragmentAnimationEnd(this);
 
-        if (!getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(HELPED, false)) {
-            //if(true) {
-            mDarkHoverView.setAlpha(0.7F);
+        //we look for the help fragment if already exists.
+        mHelpFragment = (HelpFragment) getFragmentManager().findFragmentByTag(HELPED);
+
+        //If it doesn't, we create it, if needed.
+        if (mHelpFragment == null && !getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(HELPED, false)) {
             mHelpFragment = new HelpFragment();
-            mHelpFragment.setClickListener(mClickHelper);
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.add(R.id.move_to_back_container, mHelpFragment, HELPED);
-            transaction.addToBackStack(null);
+            //transaction.addToBackStack(null);
             transaction.commit();
+        }
+        if (mHelpFragment != null) {
+            mDarkHoverView.setAlpha(0.7F);
+            mHelpFragment.setClickListener(mClickHelper);
         }
     }
 
     @Override
     public void onBackStackChanged() {
-        if (!mDidSlideOut && getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(HELPED, false)) {
+        if (!mDidSlideOut) {
             slideForward();
         }
     }
