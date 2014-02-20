@@ -172,11 +172,6 @@ public class MainActivity extends Activity implements
     private class ViewPagerGestureDetector extends SimpleOnGestureListener {
 
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return super.onScroll(e1, e2, distanceX, distanceY);
-        }
-
-        @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             switchFragments();
             return super.onSingleTapConfirmed(e);
