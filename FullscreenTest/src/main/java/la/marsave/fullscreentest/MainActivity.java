@@ -61,7 +61,7 @@ public class MainActivity extends Activity implements
 
     private GestureDetector mScrollDetector;
 
-    //TAG
+    //TAGs
     private static final String PREFERENCES = "secret";
     private static final String HELPED = "helped";
 
@@ -103,7 +103,6 @@ public class MainActivity extends Activity implements
             mHelpFragment = new HelpFragment();
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.add(R.id.move_to_back_container, mHelpFragment, HELPED);
-            //transaction.addToBackStack(null);
             transaction.commit();
         }
         if (mHelpFragment != null) {
