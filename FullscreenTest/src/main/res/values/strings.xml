@@ -20,7 +20,7 @@
     <string name="app_credits"><b>Sergiu Marsavela</b> - <a href="http://marsave.la"><b>marsave.la</b></a></string>
     <string name="touch_indicator">Touch Indicator</string>
     <string name="swipe_indicator">Swipe Indicator</string>
-    <string name="swipe_indicator_text">Simply swipe left or right</string>
+    <string name="swipe_indicator_text">Simply swipe left or right to change the color</string>
     <string name="touch_indicator_text">Tap the screen for more</string>
 
 </resources>
