@@ -1,1 +1,1 @@
-include ':FullscreenTest'
+include ':app'
