@@ -109,6 +109,12 @@ public class MainActivity extends Activity implements
     }
 
     @Override
+    public void onBackPressed() {
+        mDidSlideOut = false;
+        super.onBackPressed();
+    }
+
+    @Override
     public void onBackStackChanged() {
         if (!mDidSlideOut) {
             slideForward();
