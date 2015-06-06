@@ -116,12 +116,6 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    protected void onResume() {
-        hideBars();
-        super.onResume();
-    }
-
-    @Override
     protected void onPause() {
         //TODO Proper screen rotation handle.
         if (mDidSlideOut) {
@@ -129,6 +123,19 @@ public class MainActivity extends Activity implements
             getFragmentManager().popBackStack();
         }
         super.onPause();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            this.getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
     }
 
     View.OnTouchListener mTouchDarkHoverListener = new View.OnTouchListener() {
@@ -279,44 +286,5 @@ public class MainActivity extends Activity implements
 
     public void onAnimationEnd() {
         mIsAnimating = false;
-    }
-
-    /**
-     * Detects and toggles immersive mode (also known as "hidey bar" mode).
-     */
-    public void hideBars() {
-
-        // BEGIN_INCLUDE (get_current_ui_flags)
-        // The UI options currently enabled are represented by a bitfield.
-        // getSystemUiVisibility() gives us that bitfield.
-        //int uiOptions = this.getWindow().getDecorView().getSystemUiVisibility();
-        int newUiOptions = 0;
-        // END_INCLUDE (get_current_ui_flags)
-        // BEGIN_INCLUDE (toggle_ui_flags)
-
-        // Navigation bar hiding:  Backwards compatible to ICS.
-        if (Build.VERSION.SDK_INT >= 14) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        }
-
-        // Status bar hiding: Backwards compatible to Jellybean
-        if (Build.VERSION.SDK_INT >= 16) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
-        }
-
-        // Immersive mode: Backward compatible to KitKat.
-        // Note that this flag doesn't do anything by itself, it only augments the behavior
-        // of HIDE_NAVIGATION and FLAG_FULLSCREEN.
-        // All three flags are being toggled together.
-        // Note that there are two immersive mode UI flags, one of which is referred to as "sticky".
-        // Sticky immersive mode differs in that it makes the navigation and status bars
-        // semi-transparent, and the UI flag does not get cleared when the user interacts with
-        // the screen.
-        if (Build.VERSION.SDK_INT >= 18) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
-
-        this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
-        //END_INCLUDE (set_ui_flags)
     }
 }
