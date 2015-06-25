@@ -22,4 +22,4 @@ Sergiu Marsavela
 
 [![screenshot help layout] (https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=la.marsave.fullscreentest)
 
-![screenshot help layout](https://raw.github.com/marsavela/FullscreenTest/screenshots/screenshots/Screenshot_2014-03-02-02-13-18.png)
+![screenshot help layout](https://raw.github.com/marsavela/FullscreenTest/screenshots/Screenshot_2014-03-02-02-13-18.png)
